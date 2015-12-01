@@ -1,0 +1,25 @@
+{
+    "name": "pengjie/guzzle-example",
+    "authors": [
+        {
+            "name": "Peng-Jie",
+            "email": "dean.leehom@gmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^6.1",
+        "symfony/dom-crawler": "^2.7",
+        "symfony/css-selector": "^2.7"
+    },
+    "license": "MIT",
+    "autoload": {
+        "files": [
+           "src/CyutCourse.php",
+           "config/DB.php"
+        ],
+        "psr-4": {
+            "PengJie\\CyutCrawler\\": "src/",
+            "PengJie\\Config\\": "config/"
+        }
+    }
+}
