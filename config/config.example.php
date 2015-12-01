@@ -52,13 +52,13 @@
  */
 
 return [
-	'URI'      => 'https://admin.cyut.edu.tw/crsinfo/cur_01.asp',
-	'h_status' => 'run',
-	'h_acy'    => 104,
-	'h_sem'    => 2,
-	'h_depno'  => 'TJ9',
-	'h_secid'  => 1,
-	'h_subid'  => 4,
-	'h_year'   => 4,
-	'h_class'  => 'A'
+    'URI'      => 'https://admin.cyut.edu.tw/crsinfo/cur_01.asp',
+    'h_status' => 'run',
+    'h_acy'    => 104,
+    'h_sem'    => 2,
+    'h_depno'  => 'TJ9',
+    'h_secid'  => 1,
+    'h_subid'  => 4,
+    'h_year'   => 4,
+    'h_class'  => 'A'
 ];
