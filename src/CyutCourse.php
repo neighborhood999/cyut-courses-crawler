@@ -81,7 +81,6 @@ class CyutCourse
     public function chunckResult($result)
     {
         $courseArray = array();
-        $count = 0;
 
         foreach ($result as $domElement) {
             array_push($courseArray, $domElement->nodeValue);
