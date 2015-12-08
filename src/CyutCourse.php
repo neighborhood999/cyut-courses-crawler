@@ -110,19 +110,42 @@ class CyutCourse
                 $this->classType = $this->config['classType'][$j];
                 $this->grade = $i;
                 $this->settingClientRequest();
-                array_push($tmp, $this->chunckResult($this->crawlerResult($this->body)));
+                array_push($tmp, ([
+                    $this->year,
+                    $this->grade,
+                    $this->semester,
+                    $this->chunckResult($this->crawlerResult($this->body)),
+                ]));
+            }
+
+            if ($i === 4) {
+                for ($j = 0; $j < sizeof($this->config['classType']); $j++) {
+                    $this->classType = $this->config['classType'][$j];
+                    $this->grade = $i;
+                    $this->settingClientRequest();
+                    array_push($tmp, ([
+                        $this->year,
+                        $this->grade,
+                        $this->semester,
+                        $this->chunckResult($this->crawlerResult($this->body)),
+                    ]));
+                }
             }
         }
 
         for ($i = 0; $i < sizeof($tmp); $i++) {
-            if (sizeof($tmp[$i]) === 0) {
+            if (sizeof($tmp[$i][3]) === 0) {
                 unset($tmp[$i]);
             } else {
                 array_push($depCourses, $tmp[$i]);
             }
         }
 
-        return $depCourses;
+        unset($tmp);
+
+        $result = (['dep' => strtolower($department), 'courses' => $depCourses]);
+
+        return $result;
     }
 
     public function coursesCrawler($data, $config)

@@ -6,7 +6,7 @@ $depCode = require './config/departmentCode.php';
 
 use Pengjie\CyutCrawler\CyutCourse;
 
-// Get single coures information.
+// Get single courses information.
 $cyut = new CyutCourse($config);
 $body = $cyut->getSingleCoursesInfo()['body'];
 $filterBody = $cyut->crawlerResult($body);
