@@ -29,38 +29,15 @@ class CyutCourse
 
     public function settingClientRequest()
     {
-        if (sizeof($this->config) === 3) {
-            $formParams = [
-                'verify'       => './config/cacert.pem',
-                'form_params'  => $this->config['config']($this->year, $this->semester, $this->department, $this->grade, $this->classType),
-            ];
-        } else {
-            $formParams = [
-                'verify'       => './config/cacert.pem',
-                'form_params'  => $this->config,
-            ];
-        }
+        $formParams = [
+            'verify'       => './config/cacert.pem',
+            'form_params'  => $this->config['config']($this->year, $this->semester, $this->department, $this->grade, $this->classType),
+        ];
 
         $this->res = $this->client->request('POST', $this->config['URI'], $formParams);
         $this->body = (string) $this->res->getBody();
 
         return $this->body;
-    }
-
-    public function getSingleCoursesInfo()
-    {
-        $this->body = $this->settingClientRequest();
-
-        $getBody = ([
-            'body'       => $this->body,
-            'config'     => ([
-                'acy'    => $this->config['h_acy'],
-                'sem'    => $this->config['h_sem'],
-                'year'   => $this->config['h_year'],
-            ])
-        ]);
-
-        return $getBody;
     }
 
     public function setCrawler($body)
