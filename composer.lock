@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "81c1d18246d669c5870377b1aeed380a",
-    "content-hash": "8bbf45a8bcb3d538e0dd9e7780239c48",
+    "hash": "4a7864a0b167e88005eb9d817992f7b5",
+    "content-hash": "dc1572f7d977e519dfe186f0756d4ae2",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -336,7 +336,43 @@
             "time": "2015-11-02 20:20:53"
         }
     ],
-    "packages-dev": [],
+    "packages-dev": [
+        {
+            "name": "digitalnature/php-ref",
+            "version": "v1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/digitalnature/php-ref.git",
+                "reference": "6aa68f42c548af3facdd5546233160e34c05c6eb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/digitalnature/php-ref/zipball/6aa68f42c548af3facdd5546233160e34c05c6eb",
+                "reference": "6aa68f42c548af3facdd5546233160e34c05c6eb",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "ref.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A nicer print_r/var_dump alternative for PHP 5.3+",
+            "homepage": "https://github.com/digitalnature/php-ref",
+            "keywords": [
+                "debug",
+                "var_dump"
+            ],
+            "time": "2015-11-15 12:47:49"
+        }
+    ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": [],

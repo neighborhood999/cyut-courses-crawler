@@ -21,5 +21,8 @@
             "PengJie\\CyutCrawler\\": "src/",
             "PengJie\\Config\\": "config/"
         }
+    },
+    "require-dev": {
+        "digitalnature/php-ref": "^1.2"
     }
 }
