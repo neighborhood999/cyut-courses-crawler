@@ -57,18 +57,62 @@ class CyutCourse
 
     public function chunckResult($result)
     {
+        $tmp = array();
         $courseArray = array();
 
         foreach ($result as $domElement) {
-            array_push($courseArray, $domElement->nodeValue);
+            $text = $domElement->nodeValue;
+            $length = mb_strlen($text, 'utf-8');
+
+            if ($length = range(6, 10)) {
+                $regex = preg_match(
+                    '/([\x{4E00}-\x{9FA5}]+(-?\d?)|\d-\d?|\d?|(\d-[A-Z]))[A-Z]\d?-[0-9]+.\d?/u',
+                    $text,
+                    $matches
+                );
+                if ($regex) {
+                    $whatTime = preg_split('/[A-Z]\d?-[0-9]+.\d?/u', $matches[0]);
+                    $whereClass = preg_split('/^([\x{4E00}-\x{9FA5}]+(-?\d?)|\d-\d?|\d?|(\d-[A-Z]))/u', $matches[0]);
+                    array_push($tmp, array($whatTime[0], $whereClass[1]));
+                } else {
+                    array_push($tmp, $text);
+                }
+            } else {
+                array_push($tmp, $text);
+            }
         }
 
-        $chunk = array_chunk($courseArray, 19);
+        $chunk = array_chunk($tmp, 19);
+        unset($tmp);
+        $count = 1;
+        $tag = 0;
 
         for ($i = 0; $i < sizeof($chunk); $i++) {
-            if (sizeof($chunk[$i] !== 19)) {
-                array_push($chunk[$i], '');
+            for ($j = 10; $j < 17; $j++) {
+                if ($chunk[$i][$j] === '') {
+                    $count++;
+                    unset($chunk[$i][$j]);
+                } else {
+                    if ($j === 10 && $chunk[$i][10] !== '') {
+                        array_push($chunk[$i], array($count));
+                        gettype($chunk[$i][10]) !== 'array' ? $chunk[$i][10] = array($chunk[$i][$j]) :
+                                                              $chunk[$i][10][0] = $chunk[$i][$j];
+                        $tag += 1;
+                    } else {
+                        if ($tag === 1) {
+                            $chunk[$i][19][1] = $count + 1;
+                            $chunk[$i][10][1] = $chunk[$i][$j];
+                            unset($chunk[$i][$j]);
+                        } else {
+                            array_push($chunk[$i], array($count));
+                            $tag += 1;
+                            $chunk[$i][10][0] = $chunk[$i][$j];
+                            unset($chunk[$i][$j]);
+                        }
+                    }
+                }
             }
+            $count = 1; $tag = 0;
         }
 
         return $chunk;
@@ -120,9 +164,17 @@ class CyutCourse
 
         unset($tmp);
 
-        $result = (['dep' => strtolower($department), 'courses' => $depCourses]);
+        for ($i = 0; $i < sizeof($depCourses); $i++) {
+            for ($j = 0; $j < sizeof($depCourses[$i][3]); $j++) {
+                if ($depCourses[$i][3][$j][0] === '') {
+                    unset($depCourses[$i][3][$j]);
+                }
+            }
+        }
 
-        return $result;
+        // $result = (['dep' => strtolower($department), 'courses' => $depCourses]);
+
+        return $depCourses;
     }
 
     public function coursesCrawler($data, $config)
