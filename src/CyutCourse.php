@@ -82,21 +82,27 @@ class CyutCourse
         $chunk = array_chunk($tmp, 19);
         $count = 1; $tag = 0;
 
-        for ($i = 0; $i < sizeof($chunk); $i++) {
+        for ($i = 0; $i < count($chunk); $i++) {
             for ($j = 10; $j < 17; $j++) {
                 if ($chunk[$i][$j] !== '') {
-                    if (!isset($chunk[$i][19])) {
-                        array_push($chunk[$i], array($count));
-                    } else {
-                        $chunk[$i][19][1] = $count;
-                    }
+                    array_push($chunk[$i], $chunk[$i][$j], $count);
                 }
+                unset($chunk[$i][$j]);
                 $count++;
             }
             $count = 1; $tag = 0;
         }
 
-        return $chunk;
+        $soryArrayKey = array();
+
+        foreach ($chunk as $value) {
+            $tmpArray = array_map(function ($item) {
+                return $item;
+            }, $value, array_keys($value));
+            array_push($soryArrayKey, $tmpArray);
+        }
+
+        return $soryArrayKey;
     }
 
     public function crawlingDepartmentCourses($year, $semester, $department)
@@ -108,7 +114,7 @@ class CyutCourse
         $depCourses = array();
 
         for ($i = 1; $i < 5; $i++) {
-            for ($j = 0; $j < sizeof($this->config['classType']); $j++) {
+            for ($j = 0; $j < count($this->config['classType']); $j++) {
                 $this->classType = $this->config['classType'][$j];
                 $this->grade = $i;
                 $this->settingClientRequest();
@@ -121,7 +127,7 @@ class CyutCourse
             }
 
             if ($i === 4) {
-                for ($j = 0; $j < sizeof($this->config['classType']); $j++) {
+                for ($j = 0; $j < count($this->config['classType']); $j++) {
                     $this->classType = $this->config['classType'][$j];
                     $this->grade = $i;
                     $this->settingClientRequest();
@@ -135,8 +141,8 @@ class CyutCourse
             }
         }
 
-        for ($i = 0; $i < sizeof($tmp); $i++) {
-            if (sizeof($tmp[$i][3]) === 0) {
+        for ($i = 0; $i < count($tmp); $i++) {
+            if (count($tmp[$i][3]) === 0) {
                 unset($tmp[$i]);
             } else {
                 array_push($depCourses, $tmp[$i]);
@@ -145,8 +151,8 @@ class CyutCourse
 
         unset($tmp);
 
-        for ($i = 0; $i < sizeof($depCourses); $i++) {
-            for ($j = 0; $j < sizeof($depCourses[$i][3]); $j++) {
+        for ($i = 0; $i < count($depCourses); $i++) {
+            for ($j = 0; $j < count($depCourses[$i][3]); $j++) {
                 if ($depCourses[$i][3][$j][0] === '') {
                     unset($depCourses[$i][3][$j]);
                 }
