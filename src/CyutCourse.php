@@ -93,16 +93,16 @@ class CyutCourse
             $count = 1; $tag = 0;
         }
 
-        $soryArrayKey = array();
+        $sortKeyArray = array();
 
         foreach ($chunk as $value) {
             $tmpArray = array_map(function ($item) {
                 return $item;
             }, $value, array_keys($value));
-            array_push($soryArrayKey, $tmpArray);
+            array_push($sortKeyArray, $tmpArray);
         }
 
-        return $soryArrayKey;
+        return $sortKeyArray;
     }
 
     public function crawlingDepartmentCourses($year, $semester, $department)
