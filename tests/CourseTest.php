@@ -22,12 +22,42 @@ class CourseTest extends PHPUnit_Framework_TestCase
                 ];
             },
         ]);
+
         $course = new CyutCourse($config);
 
+        return $course;
+    }
+
+    /**
+     * @depends testCourse
+     */
+    public function testICE($course)
+    {
         $result = $course->crawlingDepartmentCourses(104, 2, 'TJ9'); // 資通系
 
         $this->assertEquals(104, $result[6][0]); // 104 年度
-        $this->assertEquals(4, $result[6][1]); // 4 年級
+        $this->assertEquals(2, $result[6][1]); // 第二學期
+        $this->assertEquals('資通系', $result[6][2]); // 系別
+        $this->assertEquals(4, $result[6][3]); // 4 年級
+        $this->assertEquals('A', $result[6][4]); // A 班
+        $this->assertInternalType('array', $result[6][5]);
+    }
 
+    /**
+     * @depends testCourse
+     */
+    public function testFindDepartment($course)
+    {
+        $getDepartment = $course->findDepartment('TJ9');
+        $this->assertEquals('資通系', $getDepartment);
+    }
+
+    /**
+     * @expectedException
+     * @depends testCourse
+     */
+    public function testFindDepartmentException($course)
+    {
+        $getDepartment = $course->findDepartment('fuck');
     }
 }
