@@ -1,0 +1,23 @@
+<phpunit colors="true"
+         bootstrap="vendor/autoload.php"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true">
+    <testsuites>
+        <testsuite name="Course Test Suite">
+            <file>./tests/CourseTest.php</file>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/</directory>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-html"
+             target="./reports"
+             charset="utf-8"
+             lowUpperBound="35"
+             highLowerBound="70"/>
+    </logging>
+</phpunit>
