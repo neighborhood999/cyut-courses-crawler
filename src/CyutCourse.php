@@ -27,6 +27,41 @@ class CyutCourse
         $this->config = $config;
     }
 
+    public function findDepartment($value)
+    {
+        $department = ([
+            'TJ9' => '資通系',
+            'TJ4' => '資工系',
+            'TJ2' => '資管系',
+            'TC6' => '財金系',
+            'TC7' => '企管系',
+            'TC8' => '保險系',
+            'TC9' => '會計系',
+            'TCA' => '休閒系',
+            'TCJ' => '行銷系',
+            'TCL' => '銀髮系',
+            'TD4' => '營建系',
+            'TD5' => '工管系',
+            'TD6' => '應化系',
+            'TD7' => '環管系',
+            'TE2' => '建築系',
+            'TE3' => '工設系',
+            'TE4' => '視傳系',
+            'TE5' => '景都系',
+            'TF1' => '傳播系',
+            'TF2' => '應英系',
+            'TF3' => '幼保系',
+            'TF4' => '社工系',
+        ]);
+
+        $findResult = array_key_exists($value, $department);
+        if (!$findResult) {
+            return false;
+        }
+
+        return $department[$value];
+    }
+
     public function settingClientRequest()
     {
         $formParams = [
@@ -110,39 +145,30 @@ class CyutCourse
         $this->year = $year;
         $this->semester = $semester;
         $this->department = $department;
+        $depName = $this->findDepartment($department);
         $tmp = array();
         $depCourses = array();
+        $count = 1;
 
-        for ($i = 1; $i < 5; $i++) {
+        do {
             for ($j = 0; $j < count($this->config['classType']); $j++) {
                 $this->classType = $this->config['classType'][$j];
-                $this->grade = $i;
+                $this->grade = $count;
                 $this->settingClientRequest();
                 array_push($tmp, ([
                     $this->year,
-                    $this->grade,
                     $this->semester,
+                    $depName,
+                    $this->grade,
+                    $this->classType,
                     $this->chunckResult($this->crawlerResult($this->body)),
                 ]));
             }
-
-            if ($i === 4) {
-                for ($j = 0; $j < count($this->config['classType']); $j++) {
-                    $this->classType = $this->config['classType'][$j];
-                    $this->grade = $i;
-                    $this->settingClientRequest();
-                    array_push($tmp, ([
-                        $this->year,
-                        $this->grade,
-                        $this->semester,
-                        $this->chunckResult($this->crawlerResult($this->body)),
-                    ]));
-                }
-            }
-        }
+            $count++;
+        } while($count < 6);
 
         for ($i = 0; $i < count($tmp); $i++) {
-            if (count($tmp[$i][3]) === 0) {
+            if (count($tmp[$i][5]) === 0) {
                 unset($tmp[$i]);
             } else {
                 array_push($depCourses, $tmp[$i]);
@@ -158,8 +184,6 @@ class CyutCourse
                 }
             }
         }
-
-        // $result = (['dep' => strtolower($department), 'courses' => $depCourses]);
 
         return $depCourses;
     }
