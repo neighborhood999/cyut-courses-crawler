@@ -47,10 +47,4 @@ $cyut = new CyutCourse($config);
 
 // Enter `year`, `semester` and `departmentCode` into function.
 $result = $cyut->crawlingDepartmentCourses(104, 2, 'TJ9');
-r($result);
-
-/*
- * If you would crawling courses into your database,
- * please setting 'config/DB.php' config,
- * then you can set and execute `$cyut->coursesCrawler($data, $config)` this function.
- */
+r($result); // see result.
