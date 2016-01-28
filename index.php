@@ -3,6 +3,7 @@ require 'vendor/autoload.php';
 $config = require './config/departmentCode.php';
 
 use Pengjie\CyutCrawler\CyutCourse;
+use Pengjie\Config\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,3 +49,7 @@ $cyut = new CyutCourse($config);
 // Enter `year`, `semester` and `departmentCode` into function.
 $result = $cyut->crawlingDepartmentCourses(104, 2, 'TJ9');
 r($result); // see result.
+
+// Instance DB class and use `fetchCourses` method insert course to database.
+// $db = new DB;
+// r($db->fetchCourses($result));

@@ -21,4 +21,17 @@ class DB
         ]);
         $capsule->setAsGlobal();
     }
+
+    public function insertToDatabase($year, $semester, $department, $grade, $className, $courses)
+    {
+        //
+    }
+
+    public function fetchCourses($result)
+    {
+        // Use `foreach` map result and get array parameter
+        // `year`, `semester`, `department`, `grade`, `className`, `courses`.
+        // We are use these parameters for insert to databse.
+        // use `$this->insertToDatabase()` method.
+    }
 }
