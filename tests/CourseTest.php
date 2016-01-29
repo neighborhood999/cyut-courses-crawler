@@ -40,7 +40,7 @@ class CourseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('資通系', $result[6][2]); // 系別
         $this->assertEquals(4, $result[6][3]); // 4 年級
         $this->assertEquals('A', $result[6][4]); // A 班
-        $this->assertInternalType('array', $result[6][5]);
+        $this->assertInternalType('array', $result[6][5]); // 課程相關資料
     }
 
     /**
