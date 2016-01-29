@@ -25,6 +25,7 @@
     },
     "require-dev": {
         "digitalnature/php-ref": "^1.2",
-        "phpunit/phpunit": "^4.8"
+        "phpunit/phpunit": "^4.8",
+        "satooshi/php-coveralls": "dev-master"
     }
 }
