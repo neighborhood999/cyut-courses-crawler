@@ -1,5 +1,5 @@
 {
-    "name": "pengjie/guzzle-example",
+    "name": "pengjie/cyut-courses-crawler",
     "authors": [
         {
             "name": "Peng-Jie",
@@ -10,7 +10,7 @@
         "guzzlehttp/guzzle": "^6.1",
         "symfony/dom-crawler": "^2.7",
         "symfony/css-selector": "^2.7",
-        "phpunit/phpunit": "^4.8"
+        "illuminate/database": "^5.2"
     },
     "license": "MIT",
     "autoload": {
@@ -24,6 +24,8 @@
         }
     },
     "require-dev": {
-        "digitalnature/php-ref": "^1.2"
+        "digitalnature/php-ref": "^1.2",
+        "phpunit/phpunit": "^4.8",
+        "satooshi/php-coveralls": "dev-master"
     }
 }

@@ -1,1 +1,4 @@
 vendor
+config/DB.php
+config/cacert.pem
+reports

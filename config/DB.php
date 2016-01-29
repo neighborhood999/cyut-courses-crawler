@@ -2,32 +2,36 @@
 
 namespace Pengjie\Config;
 
-use \PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class DB
 {
-    private $host = 'localhost';
-    private $username = 'Your Account';
-    private $password = 'Your Password';
-    private $dbName = 'Your DataBase';
-    private $db;
-
     public function __construct()
     {
-        try {
-            $this->db = new PDO(
-                "mysql:host=$this->host; dbname=$this->dbName; charset=utf8",
-                $this->username,
-                $this->password,
-                array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
-            );
-        } catch (PDOException $e) {
-            echo __LINE__ . ': ' . $e->getMessage();
-        }
+        $capsule = new Capsule;
+        $capsule->addConnection([
+            'driver'    => 'mysql',
+            'host'      => 'localhost',
+            'database'  => 'Your Database',
+            'username'  => 'Your Account',
+            'password'  => 'Your Password',
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+        ]);
+        $capsule->setAsGlobal();
     }
 
-    public function insertCourses($data, $config)
+    public function insertToDatabase($year, $semester, $department, $grade, $className, $courses)
     {
-        // ignore.
+        //
+    }
+
+    public function fetchCourses($result)
+    {
+        // Use `foreach` map result and get array parameter
+        // `year`, `semester`, `department`, `grade`, `className`, `courses`.
+        // We are use these parameters for insert to databse.
+        // use `$this->insertToDatabase()` method.
     }
 }

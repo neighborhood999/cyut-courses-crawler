@@ -4,7 +4,6 @@ namespace Pengjie\CyutCrawler;
 
 use GuzzleHttp\Client;
 use Symfony\Component\DomCrawler\Crawler;
-use Pengjie\Config\DB;
 
 class CyutCourse
 {
@@ -13,7 +12,6 @@ class CyutCourse
     private $res;
     private $body;
     private $config;
-    private $db;
     private $year;
     private $semester;
     private $department;
@@ -23,7 +21,6 @@ class CyutCourse
     public function __construct(Array $config)
     {
         $this->client = new Client();
-        // Optional: $this->db = new DB();
         $this->config = $config;
     }
 
@@ -186,10 +183,5 @@ class CyutCourse
         }
 
         return $depCourses;
-    }
-
-    public function coursesCrawler($data, $config)
-    {
-        return $this->db->insertCourses($data, $config);
     }
 }
