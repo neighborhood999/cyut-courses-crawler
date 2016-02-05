@@ -12,11 +12,7 @@ class CyutCourse
     private $res;
     private $body;
     private $config;
-    private $year;
-    private $semester;
-    private $department;
-    private $grade;
-    private $classType;
+    private $formParams;
 
     public function __construct(Array $config)
     {
@@ -59,14 +55,19 @@ class CyutCourse
         return $department[$value];
     }
 
-    public function settingClientRequest()
+    public function settingClientRequest($year, $semester, $department, $grade, $classType)
     {
-        $formParams = [
+        $this->formParams = [
             'verify'       => './config/cacert.pem',
-            'form_params'  => $this->config['config']($this->year, $this->semester, $this->department, $this->grade, $this->classType),
+            'form_params'  => $this->config['config']($year, $semester, $department, $grade, $classType),
         ];
 
-        $this->res = $this->client->request('POST', $this->config['URI'], $formParams);
+        return $this->formParams;
+    }
+
+    public function sendRequest($client)
+    {
+        $this->res = $client->request('POST', $this->config['URI'], $this->formParams);
         $this->body = (string) $this->res->getBody();
 
         return $this->body;
@@ -139,30 +140,28 @@ class CyutCourse
 
     public function crawlingDepartmentCourses($year, $semester, $department)
     {
-        $this->year = $year;
-        $this->semester = $semester;
-        $this->department = $department;
         $depName = $this->findDepartment($department);
         $tmp = array();
         $depCourses = array();
-        $count = 1;
+        $grade = 1;
 
         do {
             for ($j = 0; $j < count($this->config['classType']); $j++) {
-                $this->classType = $this->config['classType'][$j];
-                $this->grade = $count;
-                $this->settingClientRequest();
+                $classType = $this->config['classType'][$j];
+                $this->settingClientRequest($year, $semester, $department, $grade, $classType);
+                $this->sendRequest($this->client);
+
                 array_push($tmp, ([
-                    $this->year,
-                    $this->semester,
+                    $year,
+                    $semester,
                     $depName,
-                    $this->grade,
-                    $this->classType,
+                    $grade,
+                    $classType,
                     $this->chunckResult($this->crawlerResult($this->body)),
                 ]));
             }
-            $count++;
-        } while($count < 6);
+            $grade++;
+        } while($grade < 6);
 
         for ($i = 0; $i < count($tmp); $i++) {
             if (count($tmp[$i][5]) === 0) {
