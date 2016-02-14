@@ -2,12 +2,10 @@
 
 namespace Pengjie\CyutCrawler;
 
-use GuzzleHttp\Client;
 use Symfony\Component\DomCrawler\Crawler;
 
 class CyutCourse
 {
-    private $client;
     private $crawler;
     private $res;
     private $body;
@@ -16,7 +14,6 @@ class CyutCourse
 
     public function __construct(Array $config)
     {
-        $this->client = new Client();
         $this->config = $config;
     }
 
@@ -138,7 +135,7 @@ class CyutCourse
         return $sortKeyArray;
     }
 
-    public function crawlingDepartmentCourses($year, $semester, $department)
+    public function crawlingDepartmentCourses($client, $year, $semester, $department)
     {
         $depName = $this->findDepartment($department);
         $tmp = array();
@@ -149,7 +146,7 @@ class CyutCourse
             for ($j = 0; $j < count($this->config['classType']); $j++) {
                 $classType = $this->config['classType'][$j];
                 $this->settingClientRequest($year, $semester, $department, $grade, $classType);
-                $this->sendRequest($this->client);
+                $this->sendRequest($client);
 
                 array_push($tmp, ([
                     $year,

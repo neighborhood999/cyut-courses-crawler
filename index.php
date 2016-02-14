@@ -4,6 +4,7 @@ $config = require './config/departmentCode.php';
 
 use Pengjie\CyutCrawler\CyutCourse;
 use Pengjie\Config\DB;
+use GuzzleHttp\Client;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,10 +45,11 @@ use Pengjie\Config\DB;
 |
 */
 
+$client = new Client;
 $cyut = new CyutCourse($config);
 
 // Enter `year`, `semester` and `departmentCode` into function.
-$result = $cyut->crawlingDepartmentCourses(104, 2, 'TJ9');
+$result = $cyut->crawlingDepartmentCourses($client, 104, 2, 'TJ9');
 r($result); // see result.
 
 // Instance DB class and use `fetchCourses` method insert course to database.
