@@ -12,11 +12,23 @@ class CyutCourse
     private $config;
     private $formParams;
 
+    /**
+     * 初始化設定檔
+     *
+     * @param Array $config
+     */
     public function __construct(Array $config)
     {
         $this->config = $config;
     }
 
+    /**
+     * 各科系代號
+     *
+     * @param  string $value 透過 Key 尋找科系
+     *
+     * @return string 回傳科系
+     */
     public function findDepartment($value)
     {
         $department = ([
@@ -52,6 +64,17 @@ class CyutCourse
         return $department[$value];
     }
 
+    /**
+     * 設定 POST 相關參數
+     *
+     * @param  int $year          學年
+     * @param  int $semester      學期
+     * @param  string $department 科系
+     * @param  int $grade         年級
+     * @param  string $classType  班級
+     *
+     * @return Array
+     */
     public function settingClientRequest($year, $semester, $department, $grade, $classType)
     {
         $this->formParams = [
@@ -62,6 +85,13 @@ class CyutCourse
         return $this->formParams;
     }
 
+    /**
+     * 取得搜尋課表後結果
+     *
+     * @param  object $client
+     *
+     * @return String
+     */
     public function sendRequest($client)
     {
         $this->res = $client->request('POST', $this->config['URI'], $this->formParams);
@@ -70,6 +100,11 @@ class CyutCourse
         return $this->body;
     }
 
+    /**
+     * 設定爬蟲將資訊並爬取資訊
+     *
+     * @param string $body
+     */
     public function setCrawler($body)
     {
         $this->crawler = new Crawler($body);
@@ -77,6 +112,13 @@ class CyutCourse
         return $this->crawler;
     }
 
+    /**
+     * 透過 css selector 過濾結果
+     *
+     * @param  string $body
+     *
+     * @return object
+     */
     public function crawlerResult($body)
     {
         $result = $this->setCrawler($body)
@@ -85,6 +127,13 @@ class CyutCourse
         return $result;
     }
 
+    /**
+     * 將所有資訊 chunck 後再加以排序
+     *
+     * @param  object $result
+     *
+     * @return Array
+     */
     public function chunckResult($result)
     {
         $tmp = array();
@@ -135,6 +184,15 @@ class CyutCourse
         return $sortKeyArray;
     }
 
+    /**
+     * 爬取該科系 1 - 4 年級所有課表資訊
+     * @param  object $client
+     * @param  int $year          學年
+     * @param  int $semester      學期
+     * @param  string $department 科系
+     *
+     * @return Array
+     */
     public function crawlingDepartmentCourses($client, $year, $semester, $department)
     {
         $depName = $this->findDepartment($department);
@@ -142,7 +200,7 @@ class CyutCourse
         $depCourses = array();
         $grade = 1;
 
-        do {
+        for ($i = 0; $i < 5; $i++) {
             for ($j = 0; $j < count($this->config['classType']); $j++) {
                 $classType = $this->config['classType'][$j];
                 $this->settingClientRequest($year, $semester, $department, $grade, $classType);
@@ -158,7 +216,7 @@ class CyutCourse
                 ]));
             }
             $grade++;
-        } while($grade < 6);
+        }
 
         for ($i = 0; $i < count($tmp); $i++) {
             if (count($tmp[$i][5]) === 0) {

@@ -1,13 +1,23 @@
 <?php
 
 use Pengjie\CyutCrawler\CyutCourse;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 
 class CourseTest extends PHPUnit_Framework_TestCase
 {
-    public function testCourse()
+    private $course;
+    private $config;
+    private $mockBody;
+    private $client;
+    private $formParams;
+
+    public function initConfig()
     {
-        $config = ([
-            'URI' => 'https://admin.cyut.edu.tw/crsinfo/cur_01.asp',
+        $this->config = ([
+            'URI' => '/',
             'classType' => ['A', 'B', 'C'],
             'config' => function ($year, $sem, $dep, $grade, $classType) {
                 return [
@@ -23,42 +33,92 @@ class CourseTest extends PHPUnit_Framework_TestCase
             },
         ]);
 
-        $course = new CyutCourse($config);
-
-        return $course;
+        return $this->config;
     }
 
-    // This test have some problem => `cURL error`, I will find and solve.
-    // /**
-    //  * @depends testCourse
-    //  */
-    // public function testICE($course)
-    // {
-    //     $result = $course->crawlingDepartmentCourses(104, 2, 'TJ9'); // 資通系
+    public function setUp()
+    {
+        $file = fopen('./config/mockContent.php', 'r');
+        $this->mockBody = fgets($file);
+        fclose($file);
 
-    //     $this->assertEquals(104, $result[6][0]); // 104 年度
-    //     $this->assertEquals(2, $result[6][1]); // 第二學期
-    //     $this->assertEquals('資通系', $result[6][2]); // 系別
-    //     $this->assertEquals(4, $result[6][3]); // 4 年級
-    //     $this->assertEquals('A', $result[6][4]); // A 班
-    //     $this->assertInternalType('array', $result[6][5]); // 課程相關資料
-    // }
+        $mock = new MockHandler([
+            new Response(200, [], $this->mockBody)
+        ]);
+        $handler = HandlerStack::create($mock);
+        $this->client = new Client(['handler' => $handler]);
+        $this->course = new CyutCourse($this->initConfig());
+        $this->formParams = $this->course->settingClientRequest(104, 2, 'TJ9', 4, 'A');
+    }
+
+    public function tearDown()
+    {
+        $this->course = null;
+        $this->config = null;
+        $this->client = null;
+        $this->mock   = null;
+    }
+
+    public function testSettingClientRequest()
+    {
+        $status = $this->client->request('POST', $this->config['URI'], $this->formParams);
+
+        $this->assertEquals(200, $status->getStatusCode());
+    }
+
+    public function testSendRequest()
+    {
+        // $file = fopen('./config/mockContent.html', 'r');
+        // $mockBody = fgets($file);
+        // fclose($file);
+
+        $body = $this->course->sendRequest($this->client);
+        $this->assertSame($this->mockBody, $body);
+
+        return $body;
+    }
 
     /**
-     * @depends testCourse
+     * @depends testSendRequest
      */
-    public function testFindDepartment($course)
+    public function testsCrawler($body)
     {
-        $getDepartment = $course->findDepartment('TJ9');
+        $crawler = $this->course->setCrawler($body);
+        $getText = $crawler->filter('tr[style="cursor: hand"] td')->text();
+
+        $this->assertEquals(2601, $getText);
+    }
+
+    public function testFindDepartment()
+    {
+        $getDepartment = $this->course->findDepartment('TJ9');
+
         $this->assertEquals('資通系', $getDepartment);
     }
 
     /**
      * @expectedException
-     * @depends testCourse
      */
-    public function testFindDepartmentException($course)
+    public function testFindDepartmentException()
     {
-        $getDepartment = $course->findDepartment('fuck');
+        $getDepartment = $this->course->findDepartment('fuck');
+    }
+
+    public function testCrawlerResult()
+    {
+        $getCrawlerResult = $this->course->crawlerResult($this->mockBody);
+        $this->assertEquals(2601, $getCrawlerResult->text());
+
+        return $getCrawlerResult;
+    }
+
+    /**
+     * @depends testCrawlerResult
+     */
+    public function testChunkResult($getCrawlerResult)
+    {
+        $result = $this->course->chunckResult($getCrawlerResult);
+
+        $this->assertCount(9, $result);
     }
 }
