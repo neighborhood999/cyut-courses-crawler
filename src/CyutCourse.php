@@ -27,11 +27,11 @@ class CyutCourse
      *
      * @param  string $value 透過 Key 尋找科系
      *
-     * @return string 回傳科系
+     * @return String 回傳科系
      */
     public function findDepartment($value)
     {
-        $department = ([
+        $department = [
             'TJ9' => '資通系',
             'TJ4' => '資工系',
             'TJ2' => '資管系',
@@ -54,7 +54,7 @@ class CyutCourse
             'TF2' => '應英系',
             'TF3' => '幼保系',
             'TF4' => '社工系',
-        ]);
+        ];
 
         $findResult = array_key_exists($value, $department);
         if (!$findResult) {
@@ -136,7 +136,7 @@ class CyutCourse
      */
     public function chunckResult($result)
     {
-        $tmp = array();
+        $tmp = [];
 
         foreach ($result as $domElement) {
             $t = $domElement->nodeValue;
@@ -172,7 +172,7 @@ class CyutCourse
             $count = 1; $tag = 0;
         }
 
-        $sortKeyArray = array();
+        $sortKeyArray = [];
 
         foreach ($chunk as $value) {
             $tmpArray = array_map(function ($item) {
@@ -182,6 +182,28 @@ class CyutCourse
         }
 
         return $sortKeyArray;
+    }
+
+    /**
+     * 移除不存在班級資料
+     *
+     * @param  array $course
+     * @return Array
+     */
+    public function removeEmptyDepCourses($course)
+    {
+        $getNewCourseResult = [];
+
+        // 移除不存在的班級
+        for ($i = 0; $i < count($course); $i++) {
+            if (count($course[$i][5]) === 0) {
+                unset($course[$i]);
+            } else {
+                array_push($getNewCourseResult, $course[$i]);
+            }
+        }
+
+        return $getNewCourseResult;
     }
 
     /**
@@ -196,8 +218,7 @@ class CyutCourse
     public function crawlingDepartmentCourses($client, $year, $semester, $department)
     {
         $depName = $this->findDepartment($department);
-        $tmp = array();
-        $depCourses = array();
+        $tmp = [];
         $grade = 1;
 
         for ($i = 0; $i < 5; $i++) {
@@ -218,24 +239,8 @@ class CyutCourse
             $grade++;
         }
 
-        for ($i = 0; $i < count($tmp); $i++) {
-            if (count($tmp[$i][5]) === 0) {
-                unset($tmp[$i]);
-            } else {
-                array_push($depCourses, $tmp[$i]);
-            }
-        }
+        $result = $this->removeEmptyDepCourses($tmp);
 
-        unset($tmp);
-
-        for ($i = 0; $i < count($depCourses); $i++) {
-            for ($j = 0; $j < count($depCourses[$i][3]); $j++) {
-                if ($depCourses[$i][3][$j][0] === '') {
-                    unset($depCourses[$i][3][$j]);
-                }
-            }
-        }
-
-        return $depCourses;
+        return $result;
     }
 }

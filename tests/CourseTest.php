@@ -16,7 +16,7 @@ class CourseTest extends PHPUnit_Framework_TestCase
 
     public function initConfig()
     {
-        $this->config = ([
+        $this->config = [
             'URI' => '/',
             'classType' => ['A', 'B', 'C'],
             'config' => function ($year, $sem, $dep, $grade, $classType) {
@@ -31,7 +31,7 @@ class CourseTest extends PHPUnit_Framework_TestCase
                     'h_class'  => $classType
                 ];
             },
-        ]);
+        ];
 
         return $this->config;
     }
