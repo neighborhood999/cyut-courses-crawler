@@ -14,7 +14,6 @@
 
 return [
     'URI' => 'https://admin.cyut.edu.tw/crsinfo/cur_01.asp',
-    'classType' => ['A', 'B', 'C'],
     'config' => function ($year, $sem, $dep, $grade, $classType) {
         return [
             'h_status' => 'run',

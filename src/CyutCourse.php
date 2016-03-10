@@ -26,7 +26,6 @@ class CyutCourse
      * 各科系代號
      *
      * @param  string $value 透過 Key 尋找科系
-     *
      * @return String 回傳科系
      */
     public function findDepartment($value)
@@ -58,7 +57,7 @@ class CyutCourse
 
         $findResult = array_key_exists($value, $department);
         if (!$findResult) {
-            return false;
+            return;
         }
 
         return $department[$value];
@@ -72,7 +71,6 @@ class CyutCourse
      * @param  string $department 科系
      * @param  int $grade         年級
      * @param  string $classType  班級
-     *
      * @return Array
      */
     public function settingClientRequest($year, $semester, $department, $grade, $classType)
@@ -89,7 +87,6 @@ class CyutCourse
      * 取得搜尋課表後結果
      *
      * @param  object $client
-     *
      * @return String
      */
     public function sendRequest($client)
@@ -116,69 +113,91 @@ class CyutCourse
      * 透過 css selector 過濾結果
      *
      * @param  string $body
-     *
-     * @return object
+     * @return Object
      */
     public function crawlerResult($body)
     {
-        $result = $this->setCrawler($body)
+        $crawlerResult = $this->setCrawler($body)
                        ->filter('tr[style="cursor: hand"] td');
 
-        return $result;
+        return $crawlerResult;
     }
 
     /**
-     * 將所有資訊 chunck 後再加以排序
+     * 將所有資訊 chunck 成陣列
      *
-     * @param  object $result
-     *
+     * @param  object $crawlerResult
      * @return Array
      */
-    public function chunckResult($result)
+    public function chunckResult($crawlerResult)
     {
-        $tmp = [];
+        $tmpArray = [];
 
-        foreach ($result as $domElement) {
-            $t = $domElement->nodeValue;
-            $length = mb_strlen($t, 'utf-8');
-            $pattern = '/([\x{4E00}-\x{9FA5}]{2}(-?\d?)|^\d((,\d|[A-Z])|-([A-Z]|\d))(,(\d|[A-Z]))?|^((\d|[A-Z])-[A-Z])|^\d)[A-Z]([A-Z]?|\d?)-[A-Z]?[0-9]+.\d?$/u';
-            $regex = preg_match($pattern, $t, $matches);
+        foreach ($crawlerResult as $domElement) {
+            $text = $domElement->nodeValue;
+            $textLength = mb_strlen($text, 'utf-8');
+            $regexPattern = '/([\x{4E00}-\x{9FA5}]{2}(-?\d?)|^\d((,\d|[A-Z])|-([A-Z]|\d))(,(\d|[A-Z]))?|^((\d|[A-Z])-[A-Z])|^\d)[A-Z]([A-Z]?|\d?)-[A-Z]?[0-9]+.\d?$/u';
+            preg_match($regexPattern, $text, $textMatches);
 
-            if ($length >= 6) {
-                if ($matches) {
-                    $regexForClass = '/^([\x{4E00}-\x{9FA5}]{2}(-?\d?)|^\d((,\d|[A-Z])$|-([A-Z]|\d))(,(\d|[A-Z])$)?|^((\d|[A-Z])-[A-Z])|^\d)/u';
-                    $time = $matches[1];
-                    $where = preg_split($regexForClass, $t);
-                    array_push($tmp, array($time, $where[1]));
-                } else {
-                    array_push($tmp, $t);
-                }
+            if ($textLength >= 6 && $textMatches) {
+                $regexForClass = '/^([\x{4E00}-\x{9FA5}]{2}(-?\d?)|^\d((,\d|[A-Z])$|-([A-Z]|\d))(,(\d|[A-Z])$)?|^((\d|[A-Z])-[A-Z])|^\d)/u';
+                $lessonTime = $textMatches[1];
+                $lessonInWhere = preg_split($regexForClass, $text);
+
+                array_push($tmpArray, array($lessonTime, $lessonInWhere[1]));
             } else {
-                array_push($tmp, $t);
+                array_push($tmpArray, $text);
             }
         }
 
-        $chunk = array_chunk($tmp, 19);
-        $count = 1; $tag = 0;
+        $chunkResultArray = array_chunk($tmpArray, 19);
+        $splitIntoMultipleDays = $this->isCourseSplitIntoMultipleDays($chunkResultArray);
+        $sortChunkResult = $this->sortChunkResultArray($splitIntoMultipleDays);
 
-        for ($i = 0; $i < count($chunk); $i++) {
+        return $sortChunkResult;
+    }
+
+    /**
+     * 確認是否課程是否被拆成多天
+     *
+     * @param  array  $chunkResultArray
+     * @return Array
+     */
+    public function isCourseSplitIntoMultipleDays($chunkResultArray)
+    {
+        $days = 1;
+        $checkFlag = 0;
+
+        for ($i = 0; $i < count($chunkResultArray); $i++) {
             for ($j = 10; $j < 17; $j++) {
-                if ($chunk[$i][$j] !== '') {
-                    array_push($chunk[$i], $chunk[$i][$j], $count);
+                if ($chunkResultArray[$i][$j] !== '') {
+                    array_push($chunkResultArray[$i], $chunkResultArray[$i][$j], $days);
                 }
-                unset($chunk[$i][$j]);
-                $count++;
+                unset($chunkResultArray[$i][$j]);
+                $days++;
             }
-            $count = 1; $tag = 0;
+            $days = 1;
+            $checkFlag = 0;
         }
 
+        return $chunkResultArray;
+    }
+
+    /**
+     * 重新排列陣列的 key 值
+     *
+     * @param  array $chunkResultArray
+     * @return Array
+     */
+    public function sortChunkResultArray($chunkResultArray)
+    {
         $sortKeyArray = [];
 
-        foreach ($chunk as $value) {
-            $tmpArray = array_map(function ($item) {
+        foreach ($chunkResultArray as $value) {
+            $chunkResultArray = array_map(function ($item) {
                 return $item;
             }, $value, array_keys($value));
-            array_push($sortKeyArray, $tmpArray);
+            array_push($sortKeyArray, $chunkResultArray);
         }
 
         return $sortKeyArray;
@@ -187,19 +206,21 @@ class CyutCourse
     /**
      * 移除不存在班級資料
      *
+     * @codeCoverageIgnore
      * @param  array $course
      * @return Array
      */
-    public function removeEmptyDepCourses($course)
+    public function removeEmptyDepCourses($courses)
     {
         $getNewCourseResult = [];
+        $gradeOneToGradeFourTotalClass = 12;
 
         // 移除不存在的班級
-        for ($i = 0; $i < count($course); $i++) {
-            if (count($course[$i][5]) === 0) {
-                unset($course[$i]);
+        for ($i = 0; $i < $gradeOneToGradeFourTotalClass; $i++) {
+            if (empty($courses[$i][5])) {
+                unset($courses[$i]);
             } else {
-                array_push($getNewCourseResult, $course[$i]);
+                array_push($getNewCourseResult, $courses[$i]);
             }
         }
 
@@ -208,6 +229,8 @@ class CyutCourse
 
     /**
      * 爬取該科系 1 - 4 年級所有課表資訊
+     *
+     * @codeCoverageIgnore
      * @param  object $client
      * @param  int $year          學年
      * @param  int $semester      學期
@@ -218,16 +241,17 @@ class CyutCourse
     public function crawlingDepartmentCourses($client, $year, $semester, $department)
     {
         $depName = $this->findDepartment($department);
-        $tmp = [];
+        $coursesArray = [];
         $grade = 1;
+        $classes = ['A', 'B', 'C'];
 
-        for ($i = 0; $i < 5; $i++) {
-            for ($j = 0; $j < count($this->config['classType']); $j++) {
-                $classType = $this->config['classType'][$j];
+        for ($i = 0; $i < 4; $i++) {
+            for ($j = 0; $j < 3; $j++) {
+                $classType = $classes[$j];
                 $this->settingClientRequest($year, $semester, $department, $grade, $classType);
                 $this->sendRequest($client);
 
-                array_push($tmp, ([
+                array_push($coursesArray, ([
                     $year,
                     $semester,
                     $depName,
@@ -239,7 +263,7 @@ class CyutCourse
             $grade++;
         }
 
-        $result = $this->removeEmptyDepCourses($tmp);
+        $result = $this->removeEmptyDepCourses($coursesArray);
 
         return $result;
     }
