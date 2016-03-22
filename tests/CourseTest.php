@@ -18,7 +18,6 @@ class CourseTest extends PHPUnit_Framework_TestCase
     {
         $this->config = [
             'URI' => '/',
-            'classType' => ['A', 'B', 'C'],
             'config' => function ($year, $sem, $dep, $grade, $classType) {
                 return [
                     'h_status' => 'run',
@@ -46,6 +45,7 @@ class CourseTest extends PHPUnit_Framework_TestCase
             new Response(200, [], $this->mockBody)
         ]);
         $handler = HandlerStack::create($mock);
+
         $this->client = new Client(['handler' => $handler]);
         $this->course = new CyutCourse($this->initConfig());
         $this->formParams = $this->course->settingClientRequest(104, 2, 'TJ9', 4, 'A');
@@ -57,36 +57,6 @@ class CourseTest extends PHPUnit_Framework_TestCase
         $this->config = null;
         $this->client = null;
         $this->mock   = null;
-    }
-
-    public function testSettingClientRequest()
-    {
-        $status = $this->client->request('POST', $this->config['URI'], $this->formParams);
-
-        $this->assertEquals(200, $status->getStatusCode());
-    }
-
-    public function testSendRequest()
-    {
-        // $file = fopen('./config/mockContent.html', 'r');
-        // $mockBody = fgets($file);
-        // fclose($file);
-
-        $body = $this->course->sendRequest($this->client);
-        $this->assertSame($this->mockBody, $body);
-
-        return $body;
-    }
-
-    /**
-     * @depends testSendRequest
-     */
-    public function testsCrawler($body)
-    {
-        $crawler = $this->course->setCrawler($body);
-        $getText = $crawler->filter('tr[style="cursor: hand"] td')->text();
-
-        $this->assertEquals(2601, $getText);
     }
 
     public function testFindDepartment()
@@ -104,9 +74,36 @@ class CourseTest extends PHPUnit_Framework_TestCase
         $getDepartment = $this->course->findDepartment('fuck');
     }
 
+    public function testSettingClientRequest()
+    {
+        $status = $this->client->request('POST', $this->config['URI'], $this->formParams);
+
+        $this->assertEquals(200, $status->getStatusCode());
+    }
+
+    public function testSendRequest()
+    {
+        $body = $this->course->sendRequest($this->client);
+        $this->assertSame($this->mockBody, $body);
+
+        return $body;
+    }
+
+    /**
+     * @depends testSendRequest
+     */
+    public function testsCrawler($body)
+    {
+        $crawler = $this->course->setCrawler($body);
+        $getText = $crawler->filter('tr[style="cursor: hand"] td')->text();
+
+        $this->assertEquals(2601, $getText);
+    }
+
     public function testCrawlerResult()
     {
         $getCrawlerResult = $this->course->crawlerResult($this->mockBody);
+
         $this->assertEquals(2601, $getCrawlerResult->text());
 
         return $getCrawlerResult;
