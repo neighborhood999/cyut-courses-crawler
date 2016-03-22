@@ -158,7 +158,7 @@ class CyutCourse
     }
 
     /**
-     * 確認是否課程是否被拆成多天
+     * 確認課程是否被拆成多天
      *
      * @param  array  $chunkResultArray
      * @return Array
